@@ -56,7 +56,7 @@ function serveDynamic( req, res )
     else if( req.url.indexOf( "play?" ) >= 0 )
     {
       addPlayer(req, res);
-      //showTable( "Players", res );
+      showTable( "Players", res );
       console.log("players have been shown");
     }
     else if( req.url.indexOf( "get_number" ) >= 0 )
@@ -70,12 +70,16 @@ function serveDynamic( req, res )
         res.end( "Unknown URL: "+req.url );
     }
 }
+//we need a function to clear the list
 function addPlayer( req, res )
 {
     var kvs = getFormValuesFromURL( req.url );
     var db = new sql.Database( 'players.sqlite' );
     var name = kvs[ 'name_input' ];
-    db.run( "INSERT INTO Players(Name) VALUES ( ? ) ", name,
+    var x = 3;
+    var y = 3;
+    db.run( "INSERT INTO Players(Name, xpos, ypos) VALUES ( ?, ?, ? ) ", name, x, y);
+    /*db.run( "INSERT INTO Players(Name) VALUES ( ? ) ", name,
             function( err ) {
                 if( err === null )
                 {
@@ -88,7 +92,7 @@ function addPlayer( req, res )
                     res.writeHead( 200 );
                     res.end( "<html><body>error</body>" );
                 }
-            } );
+            } );*/
 }
 function generate(size)
 {
@@ -101,7 +105,7 @@ function generate(size)
       map[i][a]= "";
     }
   }
-  var items = Math.floor(size * size/3);
+  var items = Math.floor(size * size/5);
   for (var t=0; t<items; t++)
   {
     x = getRandomInt(0, size)
@@ -109,7 +113,6 @@ function generate(size)
     map[x][y] = "xXx";
   }
   return map;
-
 }
 function showTable( table, res )
 {
