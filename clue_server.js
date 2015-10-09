@@ -53,7 +53,13 @@ function serveDynamic( req, res )
         res.writeHead( 200 );
         res.end( ""+the_num );
     }
-    if( req.url.indexOf( "get_number" ) >= 0 )
+    else if( req.url.indexOf( "play?" ) >= 0 )
+    {
+      addPlayer(req, res);
+      //showTable( "Players", res );
+      console.log("players have been shown");
+    }
+    else if( req.url.indexOf( "get_number" ) >= 0 )
     {
         res.writeHead( 200 );
         res.end( ""+the_num );
@@ -64,14 +70,38 @@ function serveDynamic( req, res )
         res.end( "Unknown URL: "+req.url );
     }
 }
+function addPlayer( req, res )
+{
+    var kvs = getFormValuesFromURL( req.url );
+    var db = new sql.Database( 'players.sqlite' );
+    var name = kvs[ 'name_input' ];
+    db.run( "INSERT INTO Players(Name) VALUES ( ? ) ", name,
+            function( err ) {
+                if( err === null )
+                {
+                    res.writeHead( 200 );
+                    res.end( "<html><body>added name</body>" );
+                }
+                else
+                {
+                    console.log( err );
+                    res.writeHead( 200 );
+                    res.end( "<html><body>error</body>" );
+                }
+            } );
+}
 function generate(size)
 {
   var map = [];
   for (var i=0; i<size; i++)
   {
     map.push([]);
+    for (var a=0; a<size; a++)
+    {
+      map[i][a]= "";
+    }
   }
-  var items = size * 3;
+  var items = Math.floor(size * size/3);
   for (var t=0; t<items; t++)
   {
     x = getRandomInt(0, size)
@@ -91,17 +121,17 @@ function showTable( table, res )
           return;
         }
         var size = 3 + rows.length;
-        var map = generate(size)
+        var map = generate(size);
         res.writeHead( 200 );
         //insert various stuff above the table
-        var response_text = "<html><body><table><tbody><tr>";
+        var response_text = "<html><body><table ><tbody><tr>";
         for( var i = 0; i < size; i++ )
         {
           response_text += "<tr>"
           for( var a = 0; a < size; a++)
           {
             //console.log(item + " " + rows[i][item];
-            response_text += "<td>" + map[i][a] + "</td>";
+            response_text += "<td width = '80' height = '80' style='border-style: solid; text-align:center'>" + map[i][a] + "</td>";
           }
           response_text += "</tr>"
         }
@@ -119,10 +149,6 @@ function serverFun( req, res )
     if( req.url === "/" || req.url === "/index.htm" )
     {
         req.url = "/index.html";
-    }
-    else if( req.url.indexOf( "play?" ) >= 0 )
-    {
-      showTable( "Players", res );
     }
     var file_worked = serveFile( req, res );
 
