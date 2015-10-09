@@ -1,5 +1,6 @@
 var fs   = require( 'fs' );
 var http = require( 'http' );
+var sql = require( 'sqlite3');
 
 var the_num = 0;
 
@@ -65,9 +66,13 @@ function serveDynamic( req, res )
 }
 function generate(size)
 {
-  var map = [][];
+  var map = [];
+  for (var i=0; i<size; i++)
+  {
+    map.push([]);
+  }
   var items = size * 3;
-  for (var t=0; t<items, t++)
+  for (var t=0; t<items; t++)
   {
     x = getRandomInt(0, size)
     y = getRandomInt(0, size)
