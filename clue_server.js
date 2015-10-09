@@ -3,6 +3,9 @@ var http = require( 'http' );
 
 var the_num = 0;
 
+function getRandomInt(min, max){
+  return Math.floor(Math.random() * (max-min))+min;
+}
 function getFormValuesFromURL( url )
 {
     var kvs = {};
@@ -60,6 +63,49 @@ function serveDynamic( req, res )
         res.end( "Unknown URL: "+req.url );
     }
 }
+function generate(size)
+{
+  var map = [][];
+  var items = size * 3;
+  for (var t=0; t<items, t++)
+  {
+    x = getRandomInt(0, size)
+    y = getRandomInt(0, size)
+    map[x][y] = "xXx";
+  }
+  return map;
+
+}
+function showTable( table, res )
+{
+    var db = new sql.Database( 'players.sqlite' );
+    db.all("SELECT * FROM " + table,
+      function( err, rows ) {
+        if (err != null)
+        { console.log(err);
+          return;
+        }
+        var size = 3 + rows.length;
+        var map = generate(size)
+        res.writeHead( 200 );
+        //insert various stuff above the table
+        var response_text = "<html><body><table><tbody><tr>";
+        for( var i = 0; i < size; i++ )
+        {
+          response_text += "<tr>"
+          for( var a = 0; a < size; a++)
+          {
+            //console.log(item + " " + rows[i][item];
+            response_text += "<td>" + map[i][a] + "</td>";
+          }
+          response_text += "</tr>"
+        }
+        response_text += "</tbody></table></body>"
+        //anything else at the bottom
+        response_text +="</html>";
+        res.end( response_text );
+    } );
+}
 
 function serverFun( req, res )
 {
@@ -69,7 +115,12 @@ function serverFun( req, res )
     {
         req.url = "/index.html";
     }
+    else if( req.url.indexOf( "play?" ) >= 0 )
+    {
+      showTable( "Players", res );
+    }
     var file_worked = serveFile( req, res );
+
     if( file_worked )
         return;
 
