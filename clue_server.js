@@ -70,7 +70,8 @@ function serveDynamic( req, res )
         res.end( "Unknown URL: "+req.url );
     }
 }
-//we need a function to clear the list
+//we need a function to clear the database
+
 function addPlayer( req, res )
 {
     var kvs = getFormValuesFromURL( req.url );
@@ -114,8 +115,36 @@ function generate(size)
   }
   return map;
 }
+//this will draw the players from the database into the map
+function drawPlayers(map)
+{
+  //var player_map
+  var db = new sql.Database( 'players.sqlite' );
+  db.all("SELECT * FROM " + table,
+    function( err, rows ) {
+      if (err != null)
+      { console.log(err);
+        return;
+      }
+      for( var i = 0; i < rows; i++ )
+      {
+        x= rows[i].xpos;
+        y = rows[i].ypos
+        map[x][y] += rows[i].name;
+        //players are added into array from database
+      }
+      }
+  } );
+
+}
+function addPlayers(map)
+{
+  var center = map.length/2
+
+}
 function showTable( table, res )
 {
+    //this code can probably have its seqlite stuff removed
     var db = new sql.Database( 'players.sqlite' );
     db.all("SELECT * FROM " + table,
       function( err, rows ) {
